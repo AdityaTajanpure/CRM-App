@@ -3,6 +3,7 @@ const asyncHandler = require("express-async-handler");
 const MongoConnection = require("../config/db");
 const { hashPassword, verifyPassword } = require("../config/crypt");
 const nodemailer = require("nodemailer");
+const jwt = require("jsonwebtoken");
 
 var client = MongoConnection.connection;
 
@@ -27,8 +28,20 @@ const loginUser = asyncHandler(async (req, res) => {
       let userPassword = user.password;
       if (await verifyPassword(password, userPassword)) {
         //Password matched
+        const token = jwt.sign(
+          { username: user.username },
+          process.env.SECRET_KEY,
+          {
+            expiresIn: 3600,
+          }
+        );
         delete user.password;
-        res.json({ status: true, msg: "Logged in successfully", data: user });
+        res.json({
+          status: true,
+          msg: "Logged in successfully",
+          data: user,
+          token: token,
+        });
       } else {
         //Password not matched
         res.status(404).json({
@@ -72,6 +85,7 @@ const signUp = asyncHandler(async (req, res) => {
         firstname,
         lastname,
         isActive: true,
+        type: "Employee",
       });
       let user = await client
         .db("crm")
@@ -96,6 +110,10 @@ const forgotPassword = asyncHandler(async (req, res) => {
     if (!user) {
       res.json({ status: false, msg: "User not found!" });
     } else {
+      const secret = user.password + "-" + user.username;
+      const token = jwt.sign({ username: user.username }, secret, {
+        expiresIn: 900, // 15 min
+      });
       const authObject = {
         service: "gmail",
         port: 465,
@@ -114,11 +132,12 @@ const forgotPassword = asyncHandler(async (req, res) => {
 
       console.log(authObject);
       let transporter = nodemailer.createTransport(authObject);
+      console.log(token);
       let mailOptions = {
         from: process.env.MAIL_UESR,
         to: username,
         subject: "CRM App",
-        text: "Hello, you can create a new password for your account here\nURL",
+        text: `Hello, you can create a new password for your account here\nURL/${token}`,
       };
       transporter.sendMail(mailOptions, function (err, data) {
         if (err) {
@@ -135,4 +154,51 @@ const forgotPassword = asyncHandler(async (req, res) => {
   }
 });
 
-module.exports = { loginUser, signUp, forgotPassword };
+const setPassword = asyncHandler(async (req, res) => {
+  let username = req.body.username;
+  let password = req.body.password;
+  let token = req.body.token;
+  if (!username || !token || !password) {
+    res.json({
+      status: false,
+      msg: "Invalid Operation",
+    });
+  } else {
+    let user = await client.db("crm").collection("users").findOne({ username });
+    if (user) {
+      let decodedToken = await jwt.verify(
+        token,
+        user.password + "-" + user.username,
+        (err, user) => {
+          if (err) {
+            res.json({
+              status: false,
+              msg: "Token is invalid or has been used",
+            });
+          }
+        }
+      );
+      if (decodedToken.username === user.username) {
+        let hashedPassword = await hashPassword(password);
+        await client
+          .db("crm")
+          .collection("users")
+          .findOneAndUpdate(
+            { username },
+            { $set: { password: hashedPassword } }
+          );
+        res.json({
+          stauts: true,
+          msg: "Password updated successfully",
+        });
+      } else {
+        res.json({
+          stauts: false,
+          msg: "Token is invalid or has been expired",
+        });
+      }
+    }
+  }
+});
+
+module.exports = { loginUser, signUp, forgotPassword, setPassword };

@@ -14,3 +14,6 @@ MongoConnection.connect();
 app.listen(port, () => console.log(`Server started on port ${port}`));
 
 app.use("/onboarding", require("./routes/onboarding_routes"));
+app.use("/services", require("./routes/service_routes"));
+app.use("/leads", require("./routes/leads_routes"));
+app.use("/contacts", require("./routes/contacts_routes"));
