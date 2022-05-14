@@ -1,5 +1,5 @@
-Backend Requirement ->
-	User object -
+	Backend Requirement ->
+	User object ->
 	user_name: email (unique)
 	first_name, last_name
 	password: encrypted
