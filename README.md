@@ -1,4 +1,4 @@
-Backend Requirement -
+Backend Requirement ->
 	User object -
 	user_name: email (unique)
 	first_name, last_name
