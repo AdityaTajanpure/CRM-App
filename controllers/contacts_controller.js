@@ -39,7 +39,7 @@ const addContactRecord = asyncHandler(async (req, res) => {
         });
       res.json({
         status: true,
-        msg: "Service record created successfully",
+        msg: "Record created successfully",
       });
     }
   }
