@@ -1,6 +1,5 @@
 const asyncHandler = require("express-async-handler");
 const MongoConnection = require("../config/db");
-const jwt = require("jsonwebtoken");
 const { ObjectId } = require("mongodb");
 
 var client = MongoConnection.connection;

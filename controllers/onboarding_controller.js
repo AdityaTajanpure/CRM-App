@@ -1,4 +1,3 @@
-const express = require("express");
 const asyncHandler = require("express-async-handler");
 const MongoConnection = require("../config/db");
 const { hashPassword, verifyPassword } = require("../config/crypt");

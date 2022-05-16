@@ -1,9 +1,6 @@
-const express = require("express");
 const asyncHandler = require("express-async-handler");
 const MongoConnection = require("../config/db");
-const jwt = require("jsonwebtoken");
 const { ObjectId } = require("mongodb");
-const { tokenVerifier } = require("../middleware/token_verifier");
 
 var client = MongoConnection.connection;
 

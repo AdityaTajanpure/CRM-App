@@ -14,15 +14,29 @@ MongoConnection.connect();
 
 app.listen(port, () => console.log(`Server started on port ${port}`));
 
-app.use(cors());
+// app.use(cors());
+
+// app.use(function (req, res, next) {
+//   res.header("Access-Control-Allow-Origin", "*");
+//   res.header("Access-Control-Allow-Methods", "GET,PUT,POST,DELETE,PATCH");
+//   next();
+// });
+
+var allowedDomains = ["http://yourdomain.com", "http://localhost:3001"];
+app.use(
+  cors({
+    origin: function (origin, callback) {
+      if (!origin) return callback(null, true);
+      if (allowedDomains.indexOf(origin) === -1) {
+        var msg = `This site ${origin} does not have an access. Only specific domains are allowed to access it.`;
+        return callback(new Error(msg), false);
+      }
+      return callback(null, true);
+    },
+  })
+);
 
 app.use("/onboarding", require("./routes/onboarding_routes"));
-app.use(function (req, res, next) {
-  res.header("Access-Control-Allow-Origin", "*");
-  res.header("Access-Control-Allow-Methods", "GET,PUT,POST,DELETE,PATCH");
-  next();
-});
-
 app.use("/services", require("./routes/service_routes"));
 app.use("/leads", require("./routes/leads_routes"));
 app.use("/contacts", require("./routes/contacts_routes"));
