@@ -25,15 +25,12 @@ const addServiceRequest = asyncHandler(async (req, res) => {
         data: null,
       });
     } else {
-      let serviceRecord = await client
-        .db("crm")
-        .collection("services")
-        .insertOne({
-          title,
-          status,
-          description,
-          created_by: user.firstname,
-        });
+      await client.db("crm").collection("services").insertOne({
+        title,
+        status,
+        description,
+        created_by: user.firstname,
+      });
       res.json({
         status: true,
         msg: "Service record created successfully",
@@ -107,7 +104,7 @@ const deleteServiceRequest = asyncHandler(async (req, res) => {
         data: null,
       });
     } else {
-      let serviceRecord = await client
+      await client
         .db("crm")
         .collection("services")
         .findOneAndDelete({ _id: ObjectId(_id) });

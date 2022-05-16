@@ -80,7 +80,7 @@ const updateContactRecord = asyncHandler(async (req, res) => {
         );
       res.json({
         status: true,
-        msg: "Service record updated successfully",
+        msg: "Contact record updated successfully",
         data: serviceRecord,
       });
     }
@@ -112,7 +112,7 @@ const deleteContactRecord = asyncHandler(async (req, res) => {
         .findOneAndDelete({ _id: ObjectId(_id) });
       res.json({
         status: true,
-        msg: "Service record deleted successfully",
+        msg: "Contact record deleted successfully",
       });
     }
   }
@@ -143,7 +143,7 @@ const getContactRecords = asyncHandler(async (req, res) => {
         .toArray();
       res.json({
         status: true,
-        msg: "Service record fetched successfully",
+        msg: "Contact record fetched successfully",
         data: serviceRecord,
       });
     }

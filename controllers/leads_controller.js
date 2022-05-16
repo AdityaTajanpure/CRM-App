@@ -33,7 +33,7 @@ const addLeadRecord = asyncHandler(async (req, res) => {
       });
       res.json({
         status: true,
-        msg: "Service record created successfully",
+        msg: "Lead record created successfully",
       });
     }
   }
@@ -77,7 +77,7 @@ const updateLeadRecord = asyncHandler(async (req, res) => {
         );
       res.json({
         status: true,
-        msg: "Service record updated successfully",
+        msg: "Lead record updated successfully",
         data: serviceRecord,
       });
     }
@@ -109,7 +109,7 @@ const deleteLeadRecord = asyncHandler(async (req, res) => {
         .findOneAndDelete({ _id: ObjectId(_id) });
       res.json({
         status: true,
-        msg: "Service record deleted successfully",
+        msg: "Lead record deleted successfully",
       });
     }
   }
@@ -140,7 +140,7 @@ const getLeadRecords = asyncHandler(async (req, res) => {
         .toArray();
       res.json({
         status: true,
-        msg: "Service record fetched successfully",
+        msg: "Lead record fetched successfully",
         data: serviceRecord,
       });
     }

@@ -136,7 +136,9 @@ const forgotPassword = asyncHandler(async (req, res) => {
         from: process.env.MAIL_UESR,
         to: username,
         subject: "CRM App",
-        text: `Hello, you can create a new password for your account here\nhttp://localhost:3000/updatePassword/${token}`,
+        text: `Hello, you can create a new password for your account here
+        \n
+        ${req.get("origin")}/updatePassword/${token}`,
       };
       transporter.sendMail(mailOptions, function (err, data) {
         if (err) {
