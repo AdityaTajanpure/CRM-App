@@ -14,7 +14,10 @@ MongoConnection.connect();
 
 app.listen(port, () => console.log(`Server started on port ${port}`));
 
-var allowedDomains = ["http://yourdomain.com", "http://localhost:3000"];
+var allowedDomains = [
+  "https://crm-app-aditya.netlify.app/",
+  "http://localhost:3000",
+];
 app.use(
   cors({
     origin: function (origin, callback) {
