@@ -106,14 +106,22 @@ const deleteContactRecord = asyncHandler(async (req, res) => {
         data: null,
       });
     } else {
-      let serviceRecord = await client
-        .db("crm")
-        .collection("contacts")
-        .findOneAndDelete({ _id: ObjectId(_id) });
-      res.json({
-        status: true,
-        msg: "Contact record deleted successfully",
-      });
+      if (user.type === "Employee") {
+        res.status(200).json({
+          status: false,
+          msg: "You don't have the privileges to delete this record",
+          data: null,
+        });
+      } else {
+        await client
+          .db("crm")
+          .collection("contacts")
+          .findOneAndDelete({ _id: ObjectId(_id) });
+        res.json({
+          status: true,
+          msg: "Contact record deleted successfully",
+        });
+      }
     }
   }
 });

@@ -87,8 +87,6 @@ const updateServiceRequest = asyncHandler(async (req, res) => {
 const deleteServiceRequest = asyncHandler(async (req, res) => {
   let username = req.body.username;
   let _id = req.body._id;
-  let token = req.headers["x-auth-token"];
-
   if (!username || !_id) {
     res.json({
       status: false,
@@ -104,14 +102,22 @@ const deleteServiceRequest = asyncHandler(async (req, res) => {
         data: null,
       });
     } else {
-      await client
-        .db("crm")
-        .collection("services")
-        .findOneAndDelete({ _id: ObjectId(_id) });
-      res.json({
-        status: true,
-        msg: "Service record deleted successfully",
-      });
+      if (user.type === "Employee") {
+        res.status(200).json({
+          status: false,
+          msg: "You don't have the privileges to delete this record",
+          data: null,
+        });
+      } else {
+        await client
+          .db("crm")
+          .collection("services")
+          .findOneAndDelete({ _id: ObjectId(_id) });
+        res.json({
+          status: true,
+          msg: "Service record deleted successfully",
+        });
+      }
     }
   }
 });

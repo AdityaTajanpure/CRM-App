@@ -103,14 +103,22 @@ const deleteLeadRecord = asyncHandler(async (req, res) => {
         data: null,
       });
     } else {
-      let serviceRecord = await client
-        .db("crm")
-        .collection("leads")
-        .findOneAndDelete({ _id: ObjectId(_id) });
-      res.json({
-        status: true,
-        msg: "Lead record deleted successfully",
-      });
+      if (user.type === "Employee") {
+        res.status(200).json({
+          status: false,
+          msg: "You don't have the privileges to delete this record",
+          data: null,
+        });
+      } else {
+        let serviceRecord = await client
+          .db("crm")
+          .collection("leads")
+          .findOneAndDelete({ _id: ObjectId(_id) });
+        res.json({
+          status: true,
+          msg: "Lead record deleted successfully",
+        });
+      }
     }
   }
 });
