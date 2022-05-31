@@ -114,15 +114,10 @@ const forgotPassword = asyncHandler(async (req, res) => {
         expiresIn: 900, // 15 min
       });
       const authObject = {
-        service: "gmail",
-        port: 465,
+        service: "Gmail",
         auth: {
-          type: "OAuth2",
           user: process.env.MAIL_USER,
-          password: process.env.MAIL_PASS,
-          clientId: process.env.CLIENT_ID,
-          clientSecret: process.env.CLIENT_SECRET,
-          refreshToken: process.env.REFRESH_TOKEN,
+          pass: process.env.MAIL_PASS,
         },
         tls: {
           rejectUnauthorized: false,
