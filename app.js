@@ -36,3 +36,4 @@ app.use("/services", require("./routes/service_routes"));
 app.use("/leads", require("./routes/leads_routes"));
 app.use("/contacts", require("./routes/contacts_routes"));
 app.use("/users", require("./routes/user_routes"));
+app.use("/portfolio", require("./routes/portfolio_routes.js"));
