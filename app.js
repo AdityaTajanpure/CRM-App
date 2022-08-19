@@ -17,7 +17,7 @@ app.listen(port, () => console.log(`Server started on port ${port}`));
 var allowedDomains = [
   "https://crm-app-aditya.netlify.app",
   "http://localhost:3000",
-  "https://adityatajanpure.netlify.app/",
+  "https://adityatajanpure.netlify.app",
 ];
 app.use(
   cors({
