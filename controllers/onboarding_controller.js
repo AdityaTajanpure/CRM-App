@@ -23,6 +23,13 @@ const loginUser = asyncHandler(async (req, res) => {
         msg: "User not found",
         data: null,
       });
+    } else if (!user.isActive) {
+      //Unauthorized
+      res.status(401).json({
+        status: false,
+        msg: "User not active yet. Verify your email first",
+        data: null,
+      });
     } else {
       let userPassword = user.password;
       if (await verifyPassword(password, userPassword)) {
@@ -58,10 +65,16 @@ const signUp = asyncHandler(async (req, res) => {
   let password = req.body.password;
   let firstname = req.body.firstname;
   let lastname = req.body.lastname;
+  let type = req.body.type;
   if (!username || !password || !firstname) {
     res.json({
       status: false,
       msg: "Fill all required fields",
+    });
+  } else if (!["Admin", "Employee", "Manager"].includes(type)) {
+    res.json({
+      status: false,
+      msg: "Please include correct user type",
     });
   } else {
     let user = await client
@@ -83,18 +96,104 @@ const signUp = asyncHandler(async (req, res) => {
         password: hashedPassword,
         firstname,
         lastname,
-        isActive: true,
-        type: "Employee",
+        isActive: false,
+        type,
       });
       let user = await client
         .db("crm")
         .collection("users")
         .findOne({ username });
+
+      const secret = user.password + "-" + user.username;
       delete user.password;
+      const token = jwt.sign({ username: user.username }, secret, {
+        expiresIn: 900, // 15 min
+      });
+      const authObject = {
+        service: "Gmail",
+        auth: {
+          user: process.env.MAIL_USER,
+          pass: process.env.MAIL_PASS,
+        },
+        tls: {
+          rejectUnauthorized: false,
+        },
+      };
+
+      console.log(authObject);
+      let transporter = nodemailer.createTransport(authObject);
+      console.log(token);
+      let mailOptions = {
+        from: process.env.MAIL_UESR,
+        to: username,
+        subject: "Verify your email address - CRM App",
+        text: `Hi ${firstname},\n\nWe just need to verify your email address before you can access our CRM.\n\nVerify your email address ${req.get(
+          "origin"
+        )}/verifyEmail/${token}\nLink valid for 15 mins only!\n\nThanks! – CRM Developers Team
+        \n
+        `,
+      };
+      transporter.sendMail(mailOptions, function (err, data) {
+        if (err) {
+          console.log("Error", err);
+        } else {
+          console.log("Email sent successfully");
+        }
+      });
+
       res.json({
         status: true,
         msg: "User Created Successfully",
         data: user,
+        token,
+      });
+    }
+  }
+});
+
+const verifyUser = asyncHandler(async (req, res) => {
+  let username = req.body.username;
+  let token = req.body.token;
+  if (!username || !token) {
+    res.json({
+      status: false,
+      msg: "Invalid Operation",
+    });
+  } else {
+    let user = await client.db("crm").collection("users").findOne({ username });
+    if (user) {
+      let decodedToken = await jwt.verify(
+        token,
+        user.password + "-" + user.username,
+        async (err, user) => {
+          if (err) {
+            res.json({
+              status: false,
+              msg: "Token is invalid or has been used",
+            });
+          } else {
+            if (user.username === user.username) {
+              await client
+                .db("crm")
+                .collection("users")
+                .findOneAndUpdate({ username }, { $set: { isActive: true } });
+              res.json({
+                stauts: true,
+                msg: "Account verified successfullly successfully",
+              });
+            } else {
+              res.json({
+                stauts: false,
+                msg: "Token is invalid or has been expired",
+              });
+            }
+          }
+        }
+      );
+    } else {
+      res.json({
+        stauts: false,
+        msg: "Invalid request",
       });
     }
   }
@@ -137,14 +236,15 @@ const forgotPassword = asyncHandler(async (req, res) => {
       };
       transporter.sendMail(mailOptions, function (err, data) {
         if (err) {
-          res.json({ Error: err });
+          console.log("Error", err);
         } else {
-          res.json({
-            status: true,
-            msg: "Email sent successfully",
-            data,
-          });
+          console.log("Email sent successfully");
         }
+      });
+      res.json({
+        status: true,
+        msg: "Verification Email Sent. Please verify first to use this application",
+        data,
       });
     }
   }
@@ -197,4 +297,4 @@ const setPassword = asyncHandler(async (req, res) => {
   }
 });
 
-module.exports = { loginUser, signUp, forgotPassword, setPassword };
+module.exports = { loginUser, signUp, forgotPassword, setPassword, verifyUser };
