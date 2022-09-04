@@ -81,7 +81,7 @@ const signUp = asyncHandler(async (req, res) => {
       .db("crm")
       .collection("users")
       .findOne({ username: username });
-    if (user) {
+    if (user && user.isActive) {
       //Existing User found
       res.status(404).json({
         status: false,
