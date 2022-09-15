@@ -124,7 +124,7 @@ const signUp = asyncHandler(async (req, res) => {
       let transporter = nodemailer.createTransport(authObject);
       console.log(token);
       let mailOptions = {
-        from: process.env.MAIL_UESR,
+        from: process.env.MAIL_USER,
         to: username,
         subject: "Verify your email address - CRM App",
         text: `Hi ${firstname},\n\nWe just need to verify your email address before you can access our CRM.\n\nVerify your email address ${req.get(
